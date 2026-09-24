@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FireDash</title>
+  <link rel="stylesheet" href="styles.css?v=2" />
+</head>
+<body>
+  <div class="page-shell">
+    <header class="topbar">
+      <div class="brand">
+        <h1>Welcome back</h1>
+      </div>
+      <div class="topbar-actions">
+        <form id="search-form" class="search-form" role="search">
+          <input id="search-input" class="search-input" type="search" placeholder="Search the web…" aria-label="Search the web" />
+          <button class="primary-button search-button" type="submit">Search</button>
+        </form>
+        <button id="toggle-theme" class="secondary-button" type="button">Theme: System</button>
+        <button id="toggle-config" class="secondary-button" type="button">Customize</button>
+      </div>
+    </header>
+
+    <main class="dashboard">
+      <section class="panel news-panel" aria-labelledby="news-heading">
+        <div class="panel-header">
+          <h2 id="news-heading">News</h2>
+          <span id="news-source-label" class="muted-label">News</span>
+        </div>
+        <div id="news-container" class="news-list" aria-live="polite">
+          <div class="empty-state">Loading your news feed…</div>
+        </div>
+      </section>
+
+      <aside class="sidebar">
+        <section class="panel time-panel" aria-labelledby="time-heading">
+          <div class="panel-header">
+            <h2 id="time-heading">Time</h2>
+            <span class="muted-label">Local</span>
+          </div>
+          <div id="time-widget" class="time-card" aria-live="polite"></div>
+        </section>
+
+        <section class="panel weather-panel" aria-labelledby="weather-heading">
+          <div class="panel-header">
+            <h2 id="weather-heading">Weather</h2>
+            <span id="weather-location-label" class="muted-label">Location</span>
+          </div>
+          <div id="weather" class="weather-card" aria-live="polite"></div>
+        </section>
+
+        <section class="panel bookmarks-panel" aria-labelledby="bookmarks-heading">
+          <div class="panel-header">
+            <h2 id="bookmarks-heading">Quick links</h2>
+            <span class="muted-label">Bookmarks</span>
+          </div>
+          <div id="bookmarks" class="bookmark-grid" aria-live="polite"></div>
+        </section>
+      </aside>
+    </main>
+  </div>
+
+  <aside id="config-panel" class="config-panel hidden" aria-label="Customize dashboard">
+    <div class="panel-header" style="padding: 0 0 12px;">
+      <h2>Customize home</h2>
+      <button id="close-config" class="close-button" type="button" aria-label="Close panel">Close</button>
+    </div>
+
+    <form id="config-form">
+      <label>
+        News feed URLs
+        <textarea id="news-urls" rows="5" placeholder="https://example.com/rss&#10;https://another-feed/rss"></textarea>
+      </label>
+
+      <label>
+        Weather city
+        <input id="weather-city" type="text" placeholder="Toronto" />
+      </label>
+
+      <label>
+        World clocks (one per line: City,Timezone)
+        <textarea id="world-clocks" rows="4" placeholder="Tokyo,Asia/Tokyo&#10;London,Europe/London"></textarea>
+      </label>
+
+      <div class="form-actions">
+        <button id="reset-config" class="secondary-button" type="button">Reset</button>
+        <button class="primary-button" type="submit">Save</button>
+      </div>
+    </form>
+  </aside>
+
+  <script src="script.js?v=2"></script>
+</body>
+</html>
