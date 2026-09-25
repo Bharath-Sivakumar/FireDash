@@ -39,11 +39,26 @@ jobs:
           npx web-ext build \
             --overwrite-dest \
             --ignore-files "README.md" "LICENSE*" ".github/**" "*.git*"
+      - name: Extract Extension ID from manifest
+        id: manifest_id
+        run: |
+          EXT_ID=$(node -p "
+            const m = require('./manifest.json');
+            (m.browser_specific_settings && m.browser_specific_settings.gecko && m.browser_specific_settings.gecko.id) ||
+            (m.applications && m.applications.gecko && m.applications.gecko.id) ||
+            ''
+          ")
+          if [ -z "$EXT_ID" ]; then
+            echo "Error: Could not find gecko ID in manifest.json"
+            exit 1
+          fi
+          echo "ext_id=$EXT_ID" >> $GITHUB_OUTPUT
+          echo "Extracted Extension ID: $EXT_ID"
 
       - name: Submit to Mozilla Add-ons (AMO)
-        uses: w3c/web-ext-deploy@v3
+        uses: fregante/web-ext-deploy@v5
         with:
           apiKey: ${{ secrets.AMO_ISSUER }}
           apiSecret: ${{ secrets.AMO_SECRET }}
-          extensionId: "{YOUR-EXTENSION-UUID-OR-ID}"
+          extensionId: ${{ steps.manifest_id.outputs.ext_id }}
           zipFilePath: web-ext-artifacts/*.zip
