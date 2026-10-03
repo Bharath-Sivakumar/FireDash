@@ -15,13 +15,13 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Bump manifest version
         id: bump
         run: |
           CURRENT_VER=$(node -p "require('./manifest.json').version")
-          NEW_VER=$(node -p "const v='$CURRENT_VER'.split('.'); v[2]=parseInt(v[2])+1; v.join('.')")
+          NEW_VER=$(node -p "const v='$CURRENT_VER'.split('.'); while (v.length < 3) v.push('0'); v[2]=parseInt(v[2], 10)+1; v.join('.')")
           node -e "const m=require('./manifest.json'); m.version='$NEW_VER'; require('fs').writeFileSync('./manifest.json', JSON.stringify(m, null, 2));"
           echo "new_version=$NEW_VER" >> $GITHUB_OUTPUT
           echo "Updated manifest version to $NEW_VER"
@@ -34,31 +34,12 @@ jobs:
           git commit -m "chore: bump version to ${{ steps.bump.outputs.new_version }} [skip ci]"
           git push
 
-      - name: Build extension zip with web-ext
-        run: |
-          npx web-ext build \
-            --overwrite-dest \
-            --ignore-files "README.md" "LICENSE*" ".github/**" "*.git*"
-      - name: Extract Extension ID from manifest
-        id: manifest_id
-        run: |
-          EXT_ID=$(node -p "
-            const m = require('./manifest.json');
-            (m.browser_specific_settings && m.browser_specific_settings.gecko && m.browser_specific_settings.gecko.id) ||
-            (m.applications && m.applications.gecko && m.applications.gecko.id) ||
-            ''
-          ")
-          if [ -z "$EXT_ID" ]; then
-            echo "Error: Could not find gecko ID in manifest.json"
-            exit 1
-          fi
-          echo "ext_id=$EXT_ID" >> $GITHUB_OUTPUT
-          echo "Extracted Extension ID: $EXT_ID"
-
       - name: Submit to Mozilla Add-ons (AMO)
-        uses: fregante/web-ext-deploy@v5
-        with:
-          apiKey: ${{ secrets.AMO_ISSUER }}
-          apiSecret: ${{ secrets.AMO_SECRET }}
-          extensionId: ${{ steps.manifest_id.outputs.ext_id }}
-          zipFilePath: web-ext-artifacts/*.zip
+        env:
+          WEB_EXT_API_KEY: ${{ secrets.AMO_ISSUER }}
+          WEB_EXT_API_SECRET: ${{ secrets.AMO_SECRET }}
+        run: |
+          npx --yes web-ext sign \
+            --channel listed \
+            --artifacts-dir web-ext-artifacts \
+            --ignore-files "README.md" "LICENSE*" ".github/**" "*.git*"
