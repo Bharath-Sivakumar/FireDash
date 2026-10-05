@@ -4,7 +4,9 @@
   "version": "1.1.1",
   "description": "A personalized new tab page with widgets and news feeds.",
   "permissions": [
-    "bookmarks"
+    "bookmarks",
+    "tabs",
+    "search"
   ],
   "chrome_url_overrides": {
     "newtab": "newtab.html"
